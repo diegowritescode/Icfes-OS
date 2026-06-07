@@ -107,6 +107,58 @@ export type DocumentSource = {
   metadata_json: Record<string, unknown>;
 };
 
+export type DocumentPage = {
+  id: number;
+  document_id: number;
+  page: number;
+  text: string;
+  created_at: string;
+};
+
+export type QuestionCandidate = {
+  id: number;
+  document_id: number;
+  page: number | null;
+  raw_text: string;
+  statement: string | null;
+  option_a: string | null;
+  option_b: string | null;
+  option_c: string | null;
+  option_d: string | null;
+  correct_answer: "A" | "B" | "C" | "D" | null;
+  explanation: string | null;
+  year: number | null;
+  area: string | null;
+  subarea: string | null;
+  topic: string | null;
+  subtopic: string | null;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+};
+
+export type DocumentDetail = DocumentSource & {
+  pages: DocumentPage[];
+  candidates: QuestionCandidate[];
+};
+
+export type ImportSummary = {
+  document: DocumentSource;
+  imported_questions: number;
+  skipped_questions: number;
+  imported_count: number;
+  skipped_count: number;
+  errors: string[];
+};
+
+export type PdfExtractSummary = {
+  document_id: number;
+  filename: string;
+  pages: number;
+  candidate_count: number;
+  review_required: boolean;
+  extracted_preview: Array<{ page: number; text: string }>;
+};
+
 export type DailyPlan = {
   id: number | null;
   plan_date: string;

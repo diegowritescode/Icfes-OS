@@ -26,3 +26,9 @@ class Document(Base):
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
 
     questions = relationship("Question", back_populates="document")
+    pages = relationship("DocumentPage", back_populates="document", cascade="all, delete-orphan")
+    candidates = relationship(
+        "QuestionCandidate",
+        back_populates="document",
+        cascade="all, delete-orphan",
+    )

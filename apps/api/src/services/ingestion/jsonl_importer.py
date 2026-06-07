@@ -13,6 +13,35 @@ from src.schemas.document import DocumentCreate, ImportResult
 from src.schemas.question import QuestionCreate
 from src.services.taxonomy import infer_topic
 
+REQUIRED_QUESTION_FIELDS = (
+    "area",
+    "statement",
+    "option_a",
+    "option_b",
+    "option_c",
+    "option_d",
+    "correct_answer",
+)
+
+
+def _clean_row(row: dict[str, Any]) -> dict[str, Any]:
+    cleaned: dict[str, Any] = {}
+    for key, value in row.items():
+        if value == "":
+            cleaned[key] = None
+        else:
+            cleaned[key] = value
+    return cleaned
+
+
+def _validate_question_row(row: dict[str, Any]) -> None:
+    missing = [field for field in REQUIRED_QUESTION_FIELDS if not row.get(field)]
+    if missing:
+        raise ValueError(f"missing required fields: {', '.join(missing)}")
+    answer = str(row.get("correct_answer", "")).strip().upper()
+    if answer not in {"A", "B", "C", "D"}:
+        raise ValueError("correct_answer must be A, B, C or D")
+
 
 def _classification_from_row(row: dict[str, Any]) -> ClassificationUpsert:
     area = str(row.get("area") or "ciencias_naturales")
@@ -76,7 +105,8 @@ def import_jsonl_stream(
         if not line.strip():
             continue
         try:
-            row = json.loads(line)
+            row = _clean_row(json.loads(line))
+            _validate_question_row(row)
             external_id = row.get("id") or row.get("external_id")
             if external_id and questions.get_by_external_id(str(external_id)):
                 skipped += 1

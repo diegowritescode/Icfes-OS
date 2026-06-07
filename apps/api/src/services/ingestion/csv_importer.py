@@ -9,7 +9,11 @@ from sqlalchemy.orm import Session
 from src.repositories.documents import DocumentRepository
 from src.repositories.questions import QuestionRepository
 from src.schemas.document import DocumentCreate, ImportResult
-from src.services.ingestion.jsonl_importer import _question_from_row
+from src.services.ingestion.jsonl_importer import (
+    _clean_row,
+    _question_from_row,
+    _validate_question_row,
+)
 
 
 def import_csv_stream(db: Session, stream: TextIO, *, filename: str) -> ImportResult:
@@ -23,8 +27,9 @@ def import_csv_stream(db: Session, stream: TextIO, *, filename: str) -> ImportRe
     errors: list[str] = []
 
     for index, raw in frame.fillna("").iterrows():
-        row = dict(raw)
+        row = _clean_row(dict(raw))
         try:
+            _validate_question_row(row)
             external_id = row.get("id") or row.get("external_id")
             if external_id and questions.get_by_external_id(str(external_id)):
                 skipped += 1
