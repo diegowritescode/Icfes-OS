@@ -1,0 +1,56 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: icfes-os-db
+    environment:
+      POSTGRES_DB: icfes_os
+      POSTGRES_USER: icfes
+      POSTGRES_PASSWORD: icfes
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U icfes -d icfes_os"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: icfes-os-api
+    environment:
+      DATABASE_URL: postgresql+psycopg://icfes:icfes@db:5432/icfes_os
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      SAMPLE_QUESTIONS_PATH: /workspace/data/samples/questions.sample.jsonl
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-3-5-haiku-latest}
+      AI_PROVIDER: ${AI_PROVIDER:-openai}
+      ENABLE_EMBEDDINGS: ${ENABLE_EMBEDDINGS:-false}
+    volumes:
+      - ./data:/workspace/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: icfes-os-web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
