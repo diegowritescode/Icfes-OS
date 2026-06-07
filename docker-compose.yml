@@ -24,7 +24,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://icfes:icfes@db:5432/icfes_os
       CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
-      SAMPLE_QUESTIONS_PATH: /workspace/data/samples/questions.sample.jsonl
+      SAMPLE_QUESTIONS_PATH: /app/data/samples/questions.sample.jsonl
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}

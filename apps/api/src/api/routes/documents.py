@@ -14,6 +14,7 @@ from src.schemas.document import DocumentRead, ImportResult
 from src.services.ingestion.csv_importer import import_csv_stream
 from src.services.ingestion.jsonl_importer import import_jsonl_path, import_jsonl_stream
 from src.services.ingestion.pdf_extractor import extract_pdf_text
+from src.services.sample_data import resolve_sample_questions_path
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -37,13 +38,16 @@ def import_csv(file: UploadFile = File(...), db: Session = Depends(get_db)) -> I
 
 @router.post("/import-sample", response_model=ImportResult)
 def import_sample(db: Session = Depends(get_db)) -> ImportResult:
-    path = settings.sample_path
-    if not path.exists():
-        fallback = Path(__file__).resolve().parents[5] / "data/samples/questions.sample.jsonl"
-        path = fallback if fallback.exists() else path
+    path = resolve_sample_questions_path(settings.sample_path)
     if not path.exists():
         raise HTTPException(status_code=404, detail="Sample questions file not found.")
-    return import_jsonl_path(db, path)
+    try:
+        return import_jsonl_path(db, path)
+    except OSError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not read sample questions from {path}: {exc}",
+        ) from exc
 
 
 @router.post("/extract-pdf")

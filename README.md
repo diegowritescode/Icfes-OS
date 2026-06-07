@@ -22,6 +22,12 @@ Para cargar preguntas sample desde la UI usa Dashboard o Documentos -> `Importar
 make seed
 ```
 
+Si venias de una build anterior y el sample falla dentro de Docker, reconstruye la imagen API:
+
+```bash
+docker compose up --build
+```
+
 ## Comandos utiles
 
 ```bash
@@ -66,7 +72,8 @@ Opciones:
 
 - UI: `/documents`, subir `.jsonl`, `.csv` o `.pdf`.
 - API: `POST /documents/import-jsonl`, `POST /documents/import-csv`, `POST /documents/extract-pdf`.
-- CLI: `cd apps/api && python scripts/import_jsonl.py ../../data/samples/questions.sample.jsonl`.
+- CLI local: `cd apps/api && python scripts/import_jsonl.py ../../data/samples/questions.sample.jsonl`.
+- Docker: `docker compose exec api python scripts/seed.py`.
 
 ## IA y embeddings
 

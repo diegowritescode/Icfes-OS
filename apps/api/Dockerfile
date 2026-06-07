@@ -10,6 +10,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY apps/api /app
+COPY data/samples /app/data/samples
 RUN pip install --no-cache-dir -e ".[dev]"
 
 EXPOSE 8000

@@ -6,6 +6,7 @@ from pathlib import Path
 from src.core.config import settings
 from src.core.database import SessionLocal
 from src.services.ingestion.jsonl_importer import import_jsonl_path
+from src.services.sample_data import resolve_sample_questions_path
 
 
 def main() -> None:
@@ -18,10 +19,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    path = Path(args.path)
-    if not path.exists():
-        fallback = Path(__file__).resolve().parents[3] / "data/samples/questions.sample.jsonl"
-        path = fallback if fallback.exists() else path
+    path = resolve_sample_questions_path(Path(args.path))
     if not path.exists():
         raise SystemExit(f"Seed file not found: {path}")
 

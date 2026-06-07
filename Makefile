@@ -13,7 +13,7 @@ migrate:
 	cd apps/api && alembic upgrade head
 
 seed:
-	docker compose exec api python scripts/seed.py /workspace/data/samples/questions.sample.jsonl
+	docker compose exec api python scripts/seed.py
 
 test:
 	cd apps/api && PYTHONPATH=. pytest
