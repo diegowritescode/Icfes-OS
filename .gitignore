@@ -18,3 +18,4 @@ npm-debug.log*
 
 # OS/editor
 .DS_Store
+apps/web/tsconfig.tsbuildinfo
